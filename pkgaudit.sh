@@ -92,8 +92,23 @@ MSG=$(cat ${TMPFILE})
 # NONGREEN was detected.
 [ ${NONGREEN} ] && COLOR=${PKGAUDIT_COLOR}
 
+# Set STATUS message for top of output
+case "${COLOR}" in
+	green)
+		STATUS="&${COLOR} pkgaudit is OK"
+		;;
+	yellow)
+		STATUS="&${COLOR} pkgaudit is WARNING"
+		;;
+	red)
+		STATUS="&${COLOR} pkgaudit is CRITICAL"
+		;;
+esac
+
 # Report results to Xymon
 ${XYMON} ${XYMSRV} "status ${MACHINE}.${COLUMN} ${COLOR} $(date)
+
+${STATUS}
 
 ${MSG}
 "
