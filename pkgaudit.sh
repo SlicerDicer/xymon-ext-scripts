@@ -42,6 +42,8 @@
 : ${PKGAUDIT_JAILS="NO"};		# Audit jails if they don't run their own xymon-client
 					# This needs to be capitalized "YES" to enable
 : ${PKGAUDIT_JAILGREP="poudriere"};	# Argument to egrep to remove jails with name patterns.
+: ${PKGAUDIT_FORCEFETCH="NO"};		# Attempt to always fetch vuln.xml -- every 5 mins!
+					# This needs to be capitalized "YES" to enable
 
 # Xymon doesn't have /usr/local in PATH
 PATH=${PATH}:/usr/local/bin:/usr/local/sbin
@@ -51,7 +53,8 @@ COLUMN=pkgaudit
 COLOR=green
 PKGAUDIT_FLAGS=""
 TMPFILE="$(mktemp -t xymon-client-pkgaudit)"
-VULNXML="/usr/local/www/xymon/client/tmp/vuln.xml"
+FETCH=""
+VULNXML="-f /var/db/pkg/vuln.xml"
 
 if [ $? -ne 0 ]; then
 	echo "$0: Can't create temp file, exiting..."
@@ -62,9 +65,12 @@ fi
 echo "$(hostname) pkg audit status" >> ${TMPFILE}
 echo "" >> ${TMPFILE}
 
+# If PKGAUDIT_FORCEFETCH is enabled, pass -F flag and set VULNXML to a path where Xymon can write
+[ ${PKGAUDIT_FORCEFETCH} = "YES" ] && FETCH="-F" && VULNXML="-f /usr/local/www/xymon/client/tmp/vuln.xml"
+
 # Run pkg audit and collect output for main host. Use -F always here.
 # Jail checks below don't need -F as it was done here.
-pkg-static audit -F -f ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
+pkg-static audit ${FETCH} ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
 
 # Check if we should run on jails too. Grep removes poudriere jails.
 if [ ${PKGAUDIT_JAILS} = "YES" ]; then
@@ -74,7 +80,7 @@ if [ ${PKGAUDIT_JAILS} = "YES" ]; then
 		echo "##############################" >> ${TMPFILE}
 		echo "" >> ${TMPFILE}
 		echo "jail $(jexec ${i} hostname) pkg audit status" >> ${TMPFILE}
-		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit -f ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
+		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
 	done
 fi
 
