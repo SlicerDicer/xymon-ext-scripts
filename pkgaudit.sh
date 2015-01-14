@@ -51,28 +51,20 @@ COLUMN=pkgaudit
 COLOR=green
 PKGAUDIT_FLAGS=""
 TMPFILE="$(mktemp -t xymon-client-pkgaudit)"
+VULNXML="/usr/local/www/xymon/client/tmp/vuln.xml"
 
 if [ $? -ne 0 ]; then
 	echo "$0: Can't create temp file, exiting..."
 	exit 1
 fi
 
-# Check if the vuln.xml exists. If not, we'll force a fetch.
-if [ ! -e /var/db/pkg/vuln.xml ]; then
-    PKGAUDIT_FLAGS="-F"
-fi
-
-# If vuln.xml is older than 24h, we'll also force a fetch.
-if [ "$(find /var/db/pkg/vuln.xml -mtime +24h)" != "" ]; then 
-    PKGAUDIT_FLAGS="-F"; 
-fi
-
 # Build the pkg-audit message header for main host
 echo "$(hostname) pkg audit status" >> ${TMPFILE}
 echo "" >> ${TMPFILE}
 
-# Run pkg audit and collect output for main host
-pkg-static audit ${PKGAUDIT_FLAGS} >> ${TMPFILE} || export NONGREEN=1
+# Run pkg audit and collect output for main host. Use -F always here.
+# Jail checks below don't need -F as it was done here.
+pkg-static audit -F -f ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
 
 # Check if we should run on jails too. Grep removes poudriere jails.
 if [ ${PKGAUDIT_JAILS} = "YES" ]; then
@@ -82,7 +74,7 @@ if [ ${PKGAUDIT_JAILS} = "YES" ]; then
 		echo "##############################" >> ${TMPFILE}
 		echo "" >> ${TMPFILE}
 		echo "jail $(jexec ${i} hostname) pkg audit status" >> ${TMPFILE}
-		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit -f /var/db/pkg/vuln.xml >> ${TMPFILE} || export NONGREEN=1
+		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit -f ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
 	done
 fi
 
