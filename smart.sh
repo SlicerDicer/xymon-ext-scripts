@@ -24,6 +24,23 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+#
+# Place this file in /usr/local/www/xymon/client/ext/
+# Then, to activate simply append the following to
+# the /usr/local/www/xymon/client/etc/localclient.cfg file:
+#
+#[smart]
+#        ENVFILE $XYMONCLIENTHOME/etc/xymonclient.cfg
+#        CMD $XYMONCLIENTHOME/ext/smart.sh
+#        LOGFILE $XYMONCLIENTLOGS/smart.log
+#        INTERVAL 5m
+#
+# You may also need to add something like this to your sudoers file:
+# 
+# Cmnd_Alias SMARTCTL = /usr/local/bin/smartctl
+# xymon ALL=SMARTCTL, NOPASSWD: SMARTCTL
+#
+# Now restart the xymon client to start using it.
 
 # Xymon doesn't have /usr/local in PATH
 PATH=${PATH}:/usr/local/bin:/usr/local/sbin
