@@ -47,7 +47,7 @@ PATH=${PATH}:/usr/local/bin:/usr/local/sbin
 
 COLUMN=smart
 
-MSG=$(for i in $(sysctl -n kern.disks | tr ' ' '\n' | sort); do
+MSG=$(for i in $(sysctl -n kern.disks | tr ' ' '\n' | sort | egrep -v '^cd'); do
 	OUTPUT=$(sudo smartctl -f brief -H /dev/${i});
 	SERIAL=$(sudo smartctl -i /dev/${i} | grep Serial | awk '{print $3}')
 	MODEL=$(sudo smartctl -i /dev/${i} | grep "Device Model" | awk '{print $3,$4}')
