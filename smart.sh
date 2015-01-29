@@ -48,16 +48,22 @@ PATH=${PATH}:/usr/local/bin:/usr/local/sbin
 COLUMN=smart
 
 MSG=$(for i in $(sysctl -n kern.disks | tr ' ' '\n' | sort | egrep -v '^cd'); do
-	OUTPUT=$(sudo smartctl -f brief -H /dev/${i});
-	SERIAL=$(sudo smartctl -i /dev/${i} | grep Serial | awk '{print $3}')
-	MODEL=$(sudo smartctl -i /dev/${i} | grep "Device Model" | awk '{print $3,$4}')
+	OUTPUT=$(sudo smartctl -a /dev/${i});
+	SERIAL=$(echo "${OUTPUT}" | grep Serial | awk '{print $3}')
+	MODEL=$(echo "${OUTPUT}" | grep "Device Model" | awk '{print $3,$4}')
+	REALLOCATED=$(echo "${OUTPUT}" | grep Reallocated_Sector | awk '{print $10}')
+	if [ ${REALLOCATED} -gt 0 ] ; then
+		HEALTH="FAILED"
+	else
+	HEALTH=$(echo "${OUTPUT}" | grep "overall-health")
+	fi
 
-        case "${OUTPUT}" in
+        case "${HEALTH}" in
                 *PASSED)
-			echo "&green ${i} PASSED [ Serial:${SERIAL} Model:${MODEL} ]"
+			echo "&green ${i} PASSED [ Serial:${SERIAL} Model:${MODEL} Reallocated: ${REALLOCATED} ]"
                         ;;
 		*)
-			echo "&red ${i} FAILED [ Serial:${SERIAL} Model:${MODEL} ]"
+			echo "&red ${i} FAILED [ Serial:${SERIAL} Model:${MODEL} Reallocated: ${REALLOCATED} ]"
 	esac
 done)
 
