@@ -60,10 +60,10 @@ MSG=$(for i in $(sysctl -n kern.disks | tr ' ' '\n' | sort | egrep -v '^cd'); do
 
         case "${HEALTH}" in
                 *PASSED)
-			echo "&green ${i} PASSED [ Serial:${SERIAL} Model:${MODEL} Reallocated: ${REALLOCATED} ]"
+			echo "&green ${i} PASSED [ Serial: ${SERIAL} Model: ${MODEL} Reallocated: ${REALLOCATED} ]"
                         ;;
 		*)
-			echo "&red ${i} FAILED [ Serial:${SERIAL} Model:${MODEL} Reallocated: ${REALLOCATED} ]"
+			echo "&red ${i} FAILED [ Serial: ${SERIAL} Model: ${MODEL} Reallocated: ${REALLOCATED} ]"
 	esac
 done)
 
