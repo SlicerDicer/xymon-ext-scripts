@@ -55,7 +55,7 @@ MSG=$(for i in $(sysctl -n kern.disks | tr ' ' '\n' | sort | egrep -v '^cd'); do
 	if [ ${REALLOCATED} -gt 0 ] ; then
 		HEALTH="FAILED"
 	else
-	HEALTH=$(echo "${OUTPUT}" | grep "overall-health")
+		HEALTH=$(echo "${OUTPUT}" | grep "overall-health")
 	fi
 
         case "${HEALTH}" in
