@@ -37,7 +37,7 @@
 #
 # You may also need to add something like this to your sudoers file:
 # 
-# Cmnd_Alias SMARTCTL = /usr/local/bin/smartctl
+# Cmnd_Alias SMARTCTL = /usr/local/sbin/smartctl
 # xymon ALL=SMARTCTL, NOPASSWD: SMARTCTL
 #
 # Now restart the xymon client to start using it.
