@@ -45,14 +45,14 @@ COLOR=green
 
 MSG=$(gmirror status -s)
 
-if $(echo ${MSG} | egrep -q 'DEGRADED|SYNCHRONIZING') ; then
+if echo "${MSG}" | egrep -q 'DEGRADED|SYNCHRONIZING' ; then
 	STATUS="&red $(hostname) gmirror status is DEGRADED"
 	COLOR=red
 else
 	STATUS="&green $(hostname) gmirror status is OK"
 fi
 
-${XYMON} ${XYMSRV} "status ${MACHINE}.${COLUMN} ${COLOR} $(date)
+${XYMON} "${XYMSRV}" "status ${MACHINE}.${COLUMN} ${COLOR} $(date)
 
 ${STATUS}
 
