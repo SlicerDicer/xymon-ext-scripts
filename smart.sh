@@ -69,7 +69,7 @@ done)
 
 STATUS="$(hostname) SMART health status"
 
-if (echo ${MSG} | grep -q FAILED); then
+if (echo "${MSG}" | grep -q FAILED); then
 	COLOR=red
 else
 	COLOR=green
