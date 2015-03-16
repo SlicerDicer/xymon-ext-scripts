@@ -76,11 +76,11 @@ pkg-static audit ${FETCH} ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
 if [ ${PKGAUDIT_JAILS} = "YES" ]; then
 	for i in $(jls | sed '1d' | egrep -v "${PKGAUDIT_JAILGREP}" | awk '{print $1}'); do
 		JAILROOT=$(jls -j ${i} -h path | sed '1d')
-		echo "" >> ${TMPFILE}
-		echo "##############################" >> ${TMPFILE}
-		echo "" >> ${TMPFILE}
-		echo "jail $(jexec ${i} hostname) pkg audit status" >> ${TMPFILE}
-		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
+		{ echo "" ;
+		echo "##############################" ;
+		echo "" ;
+		echo "jail $(jexec ${i} hostname) pkg audit status" ;
+		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit ${VULNXML} ; } > ${TMPFILE} || export NONGREEN=1
 	done
 fi
 
