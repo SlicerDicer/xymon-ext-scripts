@@ -54,9 +54,12 @@ MSG=$(for i in $(zpool list -H -o name); do
 			echo "&red ${i} is DEGRADED"
 			echo ""
 			zpool status ${i}
-			export COLOR=red
 	esac
 done)
+
+if echo "${MSG}" | grep -q DEGRADED ; then
+	export COLOR=red
+fi
 
 STATUS="$(hostname) ZFS status"
 
