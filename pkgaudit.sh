@@ -68,8 +68,7 @@ echo "" >> ${TMPFILE}
 # If PKGAUDIT_FORCEFETCH is enabled, pass -F flag and set VULNXML to a path where Xymon can write
 [ ${PKGAUDIT_FORCEFETCH} = "YES" ] && FETCH="-F" && VULNXML="-f /usr/local/www/xymon/client/tmp/vuln.xml"
 
-# Run pkg audit and collect output for main host. Use -F always here.
-# Jail checks below don't need -F as it was done here.
+# Run pkg audit and collect output for main host
 pkg-static audit ${FETCH} ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
 
 # Check if we should run on jails too. Grep removes poudriere jails.
@@ -79,8 +78,9 @@ if [ ${PKGAUDIT_JAILS} = "YES" ]; then
 		{ echo "" ;
 		echo "##############################" ;
 		echo "" ;
-		echo "jail $(jexec ${i} hostname) pkg audit status" ;
-		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit ${VULNXML} ; } > ${TMPFILE} || export NONGREEN=1
+		echo "jail $(jls -j ${i} -h name | sed '/name/d') pkg audit status" ;
+		echo "" ;
+		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit ${VULNXML} ; } >> ${TMPFILE} || export NONGREEN=1
 	done
 fi
 
