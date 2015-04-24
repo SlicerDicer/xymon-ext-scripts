@@ -51,9 +51,8 @@ PATH=${PATH}:/usr/local/bin:/usr/local/sbin
 # Don't edit below unless you know what you're doing
 COLUMN=pkgaudit
 COLOR=green
-PKGAUDIT_FLAGS=""
+PKGAUDIT_FLAGS="-r"
 TMPFILE="$(mktemp -t xymon-client-pkgaudit)"
-FETCH=""
 VULNXML="-f /var/db/pkg/vuln.xml"
 
 if [ $? -ne 0 ]; then
@@ -66,10 +65,10 @@ echo "$(hostname) pkg audit status" >> ${TMPFILE}
 echo "" >> ${TMPFILE}
 
 # If PKGAUDIT_FORCEFETCH is enabled, pass -F flag and set VULNXML to a path where Xymon can write
-[ ${PKGAUDIT_FORCEFETCH} = "YES" ] && FETCH="-F" && VULNXML="-f /usr/local/www/xymon/client/tmp/vuln.xml"
+[ ${PKGAUDIT_FORCEFETCH} = "YES" ] && PKGAUDIT_FLAGS="${PKGAUDIT_FLAGS} -F" && VULNXML="-f /usr/local/www/xymon/client/tmp/vuln.xml"
 
 # Run pkg audit and collect output for main host
-pkg-static audit ${FETCH} ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
+pkg-static audit ${PKGAUDIT_FLAGS} ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
 
 # Check if we should run on jails too. Grep removes poudriere jails.
 if [ ${PKGAUDIT_JAILS} = "YES" ]; then
@@ -80,7 +79,7 @@ if [ ${PKGAUDIT_JAILS} = "YES" ]; then
 		echo "" ;
 		echo "jail $(jls -j ${i} -h name | sed '/name/d') pkg audit status" ;
 		echo "" ;
-		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit ${VULNXML} ; } >> ${TMPFILE} || export NONGREEN=1
+		pkg-static -o PKG_DBDIR=${JAILROOT}/var/db/pkg audit ${PKGAUDIT_FLAGS} ${VULNXML} ; } >> ${TMPFILE} || export NONGREEN=1
 	done
 fi
 
