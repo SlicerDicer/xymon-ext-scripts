@@ -42,8 +42,6 @@
 : ${PKGAUDIT_JAILS="NO"};		# Audit jails if they don't run their own xymon-client
 					# This needs to be capitalized "YES" to enable
 : ${PKGAUDIT_JAILGREP="poudriere"};	# Argument to egrep to remove jails with name patterns.
-: ${PKGAUDIT_FORCEFETCH="NO"};		# Attempt to always fetch vuln.xml -- every 5 mins!
-					# This needs to be capitalized "YES" to enable
 
 # Xymon doesn't have /usr/local in PATH
 PATH=${PATH}:/usr/local/bin:/usr/local/sbin
@@ -63,9 +61,6 @@ fi
 # Build the pkg-audit message header for main host
 echo "$(hostname) pkg audit status" >> ${TMPFILE}
 echo "" >> ${TMPFILE}
-
-# If PKGAUDIT_FORCEFETCH is enabled, pass -F flag and set VULNXML to a path where Xymon can write
-[ ${PKGAUDIT_FORCEFETCH} = "YES" ] && PKGAUDIT_FLAGS="${PKGAUDIT_FLAGS} -F" && VULNXML="-f /usr/local/www/xymon/client/tmp/vuln.xml"
 
 # Run pkg audit and collect output for main host
 pkg-static audit ${PKGAUDIT_FLAGS} ${VULNXML} >> ${TMPFILE} || export NONGREEN=1
